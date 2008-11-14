@@ -56,7 +56,7 @@ MEDIA_URL = '/media/'
 ADMIN_MEDIA_PREFIX = '/admin/media/'
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '__0(6(#-mf*928p9n7_xhcn09yxshtuf1y5b75zizisar#0@jh'
+SECRET_KEY = '8$0d4^!ouqrzi2*eq^#aikb835osibzjrfo&b!u5-82d+hc(96'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -85,7 +85,7 @@ INTERNAL_IPS = ( '127.0.0.1',
 
 # djangologging
 LOGGING_OUTPUT_ENABLED = True
-LOGGING_LOG_SQL = False
+LOGGING_LOG_SQL = True
 LOGGING_INTERCEPT_REDIRECTS = False
 
 # Log debug messages to standard output
@@ -101,6 +101,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
+    'django.contrib.databrowse',
     'django_extensions',
+    'woningscrape'
 )
 

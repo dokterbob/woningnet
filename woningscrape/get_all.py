@@ -4,6 +4,7 @@ import logging
 
 import time
 import random
+import datetime
 
 from models import *
 
@@ -25,8 +26,10 @@ def get_woningen():
     linkidre = re.compile('getDetails\(\'([a-z0-9A-Z]+)\'\)')
     
     pricere = re.compile('[0-9]{3,4}(,[0-9]{2}){0,1}')
-    
     zipcodere = re.compile('([0-9]{4} [A-Z]{2}) ([\w]+)')
+    datere = re.compile('[0-9]{2}-[0-9]{2}-[0-9]{4}')
+    surfacere = re.compile('([1-9][0-9]*(,[0-9]*){0,1}) m')
+    
 
     searchurl = 'http://www.woningnet.nl/zoekresultaat.asp'
     detailurl = 'http://www.woningnet.nl/woningdetails.asp'
@@ -59,9 +62,9 @@ def get_woningen():
             address = addr_tag.text
             
             zipcode_tag = addr_tag.next('b')
-            zipcode = zipcode_tag.find(zipcodere, 1)
+            zipcode = zipcode_tag.find(zipcodere, 1).text
             
-            gemeente = zipcode_tag.find(zipcodere, 2)
+            gemeente = zipcode_tag.find(zipcodere, 2).text
             
             logging.debug('Found adres: %s' % address)
             logging.debug('Found postcode: %s' % zipcode)
@@ -74,7 +77,7 @@ def get_woningen():
                         
             w.adres = address
             w.postcode = zipcode
-            g, created = Gemeente.objects.get_or_create(naam=gemeente.text)
+            g, created = Gemeente.objects.get_or_create(naam=gemeente)
             w.gemeente = g
         
             # Further details
@@ -101,6 +104,27 @@ def get_woningen():
                     value = value.text
                     logging.debug('Found type: %s' % value)
                     w.woningtype = value
+                elif detail.text == 'Leeftijd':
+                    value = value.text
+                    logging.debug('Found leeftijd: %s' % value)
+                    w.leeftijd = value
+                elif detail.text == 'Leeg per':
+                    value = datetime.datetime.strptime( value.find(datere).text, '%d-%m-%Y')
+                    logging.debug('Found leeg per: %s' % value)
+                    w.leegper = value
+                elif detail.text == 'Energielabel':
+                    value = value.text
+                    if value in ENERGIE_LABELS:
+                        logging.debug('Found energielabel: %s' % value)
+                        w.energielabel = value
+                elif detail.text == 'Totale oppervlakte':
+                    value = float(value.find(surfacere, 1).text)
+                    logging.debug('Found oppervlakte: %f' % value)
+                    w.oppervlakte = value
+                elif detail.text == 'Totaal aantal kamers':
+                    value = value.get_number()
+                    logging.debug('Found kamers: %d' % value)
+                    w.kamers = value
                 else:
                     logging.debug('Extra - \'%s\': %s' % (detail, value.text))
                     w.extra = w.extra + "%s: %s\n" % (detail.text, value.text)
