@@ -10,8 +10,10 @@ databrowse.site.register(Gemeente)
 databrowse.site.register(Woning)
 
 if settings.DEBUG:
-    from os import path
-    urlpatterns = patterns('django.views', (r'^static/(?P<path>.*)$', 'static.serve', {'document_root': path.join(settings.PROJECT_ROOT, 'static') }))
+    from staticfiles.urls import staticfiles_urlpatterns
+    
+    urlpatterns = staticfiles_urlpatterns()
+    
 else:
     urlpatterns = patterns('')
 
@@ -21,5 +23,5 @@ urlpatterns += patterns('',
 
     # Django Admin
     (r'^admin/doc/', include('django.contrib.admindocs.urls')),
-    (r'^admin/(.*)', admin.site.root)
+    (r'^admin/', include(admin.site.urls)),
 )

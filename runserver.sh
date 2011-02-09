@@ -1,20 +1,28 @@
-#!/bin/bash
+#!/bin/sh
 
-cd `dirname $BASH_SOURCE`
+cd `dirname $0`
 
 PWD=`pwd`
 BASEPATH=`basename $PWD`
+PYTHON=python
+SCREEN=screen
+ENVDIR=env
 
-if [ ! -f portnumber ]; then
-    echo 'No port number set!'
-    echo 'Please create a file named "portnumber" in the current directory with'
-    echo 'a locally unique portnumber in it, like "1234".'
-    exit -1
+if [ -d $ENVDIR ]; then
+    echo 'Using python from virtualenv environment' >&2
+    PYTHON=$ENVDIR/bin/python
 fi
 
-if [[ $1 != "" ]]; then
-    python manage.py $1
+if [ ! -f portnumber ]; then
+    echo 'No port number set!' >&2
+    echo 'Please create a file named "portnumber" in the current directory with' >&2
+    echo 'a locally unique portnumber in it, like "1234".' >&2
+    exit 1
+fi
+
+if [ $1 ]; then
+    $PYTHON manage.py $*
 else
-    screen -S $BASEPATH python manage.py runserver `hostname`:`cat portnumber`
+    $SCREEN -S $BASEPATH $PYTHON manage.py runserver `hostname`:`cat portnumber`
 fi
 

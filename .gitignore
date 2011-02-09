@@ -3,6 +3,9 @@
 .DS\_Store
 *.sqlite
 *.sw?
-media
+/static/media
 portnumber
+settings_local.py
+settings_secret.py
+env
 
